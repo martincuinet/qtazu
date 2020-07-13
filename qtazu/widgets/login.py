@@ -1,6 +1,8 @@
 import os
 import logging
 import re
+import sys
+import traceback
 
 import gazu
 from Qt import QtWidgets, QtGui, QtCore
@@ -28,6 +30,8 @@ class AnimatedLabel(QtWidgets.QLabel):
         )
         self.setWordWrap(True)
         self.create_animation()
+        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding,
+                                QtWidgets.QSizePolicy.Expanding)
 
     def create_animation(self):
         """
@@ -141,6 +145,21 @@ class Login(QtWidgets.QDialog):
             # Automatically enter host if available.
             self.initialize_host()
 
+    def show_error(self, message=None):
+        """
+        Show the error message and emit a failed logged-in signal
+        """
+        if not message:
+            message = (
+                "Login verification failed.\n"
+                "Please ensure your username and "
+                "password are correct."
+            )
+        self.error.setText(message)
+        self.error.show()
+        self.error.start_animation()
+        self.logged_in.emit(False)
+
     def initialize_host(self):
         """Initialize host value based on environment"""
 
@@ -178,38 +197,34 @@ class Login(QtWidgets.QDialog):
 
         try:
             gazu.set_host(host)
-            if not gazu.client.host_is_up():
+            if not gazu.client.host_is_valid():
                 raise ConnectionError(
-                    "Could not connect to the server. Is the host URL correct?"
+                    "Could not connect to the server.\nIs the host URL correct?"
                 )
             result = gazu.log_in(user, password)
-        except Exception as exc:
-            message = str(exc)
-            if message.startswith("auth/login"):
-                message = (
-                    "Could not connect to the server. Is the host URL correct?"
-                )
-            if message.startswith("('auth/login',"):
-                # Failed to login
-                message = (
-                    "Login verification failed.\n"
-                    "Please ensure your username and "
-                    "password are correct."
-                )
-            else:
-                # Something else happened.
-                # For readability produce new line
-                # around every dot with following space
-                message = message.replace(". ", ".\n")
-
-            self.error.setText(message)
-            self.error.show()
-            self.error.start_animation()
-            self.logged_in.emit(False)
+        except ConnectionError:
+            message = "Could not connect to the server.\nIs the host URL correct?"
+            self.show_error(message)
+            return
+        except gazu.exception.ParameterException:
+            message = (
+                "Login verification failed.\n"
+                "Please ensure your username and "
+                "password are correct."
+            )
+            self.show_error(message)
+            return
+        except Exception:
+            # In case of unexpected exception, show the traceback
+            message = traceback.format_exc()
+            self.show_error(message)
             return
 
         if result:
             name = "{user[first_name]} {user[last_name]}".format(**result)
             log.info("Logged in as %s.." % name)
             self.logged_in.emit(True)
-        self.accept()
+            self.accept()
+        else:
+            message = "Unexpected behaviour : Did not retrieve user informations"
+            self.show_error(message)
