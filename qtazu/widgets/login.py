@@ -206,7 +206,7 @@ class Login(QtWidgets.QDialog):
             message = "Could not connect to the server.\nIs the host URL correct?"
             self.show_error(message)
             return
-        except gazu.exception.ParameterException:
+        except gazu.exception.AuthFailedException:
             message = (
                 "Login verification failed.\n"
                 "Please ensure your username and "
