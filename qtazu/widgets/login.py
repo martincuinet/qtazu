@@ -184,9 +184,11 @@ class Login(QtWidgets.QDialog):
         if host:
             # Force the host by environment variable
             host_input.setText(host)
-            host_input.setEnabled(False)
         else:
             host_input.setEnabled(True)
+
+        user_input = self.inputs["user"]
+        user_input.setFocus()
 
     def on_login(self):
         """Perform login with current settings in the dialog."""
