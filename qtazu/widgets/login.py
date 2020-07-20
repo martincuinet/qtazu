@@ -198,11 +198,11 @@ class Login(QtWidgets.QDialog):
         try:
             gazu.set_host(host)
             if not gazu.client.host_is_valid():
-                raise ConnectionError(
+                raise gazu.exception.HostException(
                     "Could not connect to the server.\nIs the host URL correct?"
                 )
             result = gazu.log_in(user, password)
-        except ConnectionError:
+        except gazu.exception.HostException:
             message = "Could not connect to the server.\nIs the host URL correct?"
             self.show_error(message)
             return
