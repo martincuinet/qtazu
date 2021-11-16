@@ -46,13 +46,13 @@ class TaskBreadcrumb(QtWidgets.QLabel):
             color=task["task_type"]["color"],
             txt=task["entity"]["name"]
         )
-        task = link.format(
+        task_link = link.format(
             url="#task",
             color="#BBB",
             txt=task["task_type"]["name"]
         )
 
-        label = " / ".join([entity_type, entity, task])
+        label = " / ".join([entity_type, entity, task_link])
 
         self.setText(label)
         self.task_changed.emit(task)
