@@ -169,9 +169,8 @@ class CommentWidget(QtWidgets.QDialog):
     def set_task(self, task_id):
 
         self.breadcrumbs.set_task(task_id)
-
-        task = self.breadcrumbs.get_task()
-        current_state = gazu.task.get_task_status(task)
+        
+        current_state = gazu.task.get_task_status(self.get_task()["task_status_id"])
 
         # Set the status combobox to the current state of this task
         index = self.status.findText(current_state['name'])
