@@ -1,4 +1,3 @@
-release_number=0.1.0
 twine --help || exit 1
 echo "__version__ = \"$release_number\"" > qtazu/__version__.py
 git add qtazu/__version__.py 
