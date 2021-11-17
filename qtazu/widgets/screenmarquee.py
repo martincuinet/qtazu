@@ -128,7 +128,7 @@ class ScreenMarquee(QtWidgets.QDialog):
         self._fit_screen_geometry()
 
         # Start fade in animation
-        fade_anim = QtCore.QPropertyAnimation(self, "_opacity_anim_prop", self)
+        fade_anim = QtCore.QPropertyAnimation(self, b"_opacity_anim_prop", self)
         fade_anim.setStartValue(self._opacity)
         fade_anim.setEndValue(50)
         fade_anim.setDuration(200)
