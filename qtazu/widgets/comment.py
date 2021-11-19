@@ -69,14 +69,11 @@ class DragDropLabel(ClickableLabel):
 
 class CommentWidget(QtWidgets.QDialog):
     """A CG-Wire comment widget
-
     This includes the ability to take Screenshots from the widget
     by default, to disable use `set_allow_screenshot(False)`
-
     If you are using this Widget in another interface that has its
     own submit button then use `set_button_visibility(False)` and
     trigger `submit()` from your surrounding widget.
-
     """
 
     StatusRole = QtCore.Qt.UserRole + 1
@@ -210,10 +207,8 @@ class CommentWidget(QtWidgets.QDialog):
 
     def set_thumbnail_visible(self, value):
         """Set thumbnail visibility
-
         Disabling this also implicitly disables the screenshot feature
         since screenshotting is only possible by clicking the thumbnail.
-
         """
         self.thumbnail_label.setVisible(value)
         self.thumbnail.setVisible(value)
@@ -225,11 +220,9 @@ class CommentWidget(QtWidgets.QDialog):
 
     def set_attachment(self, path):
         """Set the attachment.
-
         Args:
             path (str): This should be a valid path that can be
                 used as preview attachment for the comment.
-
         """
         assert os.path.exists(path), \
             "Attachment path does not exist: %s" % path
@@ -357,10 +350,7 @@ class CommentWidget(QtWidgets.QDialog):
         comment_text = self.comment.toPlainText()
 
         # Submit comment
-        comment = gazu.task.add_comment(task,
-                                        status,
-                                        comment=comment_text)
-        log.info("Submitted comment: %s", comment)
+        
 
         # Upload preview and attach to comment
         has_preview = bool(self._attachment)
@@ -369,12 +359,19 @@ class CommentWidget(QtWidgets.QDialog):
             assert os.path.exists(filepath), \
                 "File does not exist: %s" % filepath
 
-            preview = gazu.task.add_preview(task, comment, filepath)
-            log.info("Submitted preview: %s", preview)
+            comment = gazu.task.add_comment(task,
+                                        status,
+                                        comment=comment_text,
+                                        attachments=[filepath])
+            log.info("Submitted comment: %s", comment)
 
             # Clear the attachment
             self._attachment = None
-
+        else:
+            comment = gazu.task.add_comment(task,
+                                        status,
+                                        comment=comment_text)
+        log.info("Submitted comment: %s", comment)
         if self._close_on_submit:
             # Close after submission for now to avoid confusion
             # todo: if not closing add message that submission succeeded
