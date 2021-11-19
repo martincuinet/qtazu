@@ -3,6 +3,7 @@ import sys
 import os
 
 from Qt import QtCore, QtGui, QtWidgets
+from PyQt5.QtGui import QPixmap, QScreen
 
 
 class ScreenMarquee(QtWidgets.QDialog):
@@ -128,7 +129,10 @@ class ScreenMarquee(QtWidgets.QDialog):
         self._fit_screen_geometry()
 
         # Start fade in animation
-        fade_anim = QtCore.QPropertyAnimation(self, b"_opacity_anim_prop", self)
+        property = "_opacity_anim_prop"
+        encoded_property = property.encode()
+        byte_array = bytearray(encoded_property)
+        fade_anim = QtCore.QPropertyAnimation(self, byte_array , self)
         fade_anim.setStartValue(self._opacity)
         fade_anim.setEndValue(50)
         fade_anim.setDuration(200)
@@ -169,8 +173,9 @@ def get_desktop_pixmap(rect):
         QtGui.QPixmap: Captured pixmap image
 
     """
+    screen = QtWidgets.QApplication.primaryScreen()
     desktop = QtWidgets.QApplication.desktop()
-    pixmap = QtGui.QPixmap.grabWindow(desktop.winId(),
+    pixmap = screen.grabWindow(desktop.winId(),
                                       rect.x(),
                                       rect.y(),
                                       rect.width(),
